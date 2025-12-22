@@ -11,7 +11,7 @@ jobs:
         shell: pwsh
         run: |
           $username = "runneradmin"
-          $password = "5tr0nqP@5s"
+          $password = "${{ secrets.PASSWORD }}"
           $securePass = ConvertTo-SecureString $password -AsPlainText -Force
           Set-LocalUser -Name $username -Password $securePass
           Add-LocalGroupMember -Group "Administrators" -Member $username -ErrorAction SilentlyContinue
