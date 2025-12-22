@@ -8,20 +8,16 @@ if (-not $admin.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 # 2) Change Computer Name and Update OEM Information
 $newComputerName = "VirtualMachine"
 
-# Update computer name in registry
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName" -Name "ComputerName" -Value $newComputerName -Force
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ActiveComputerName" -Name "ComputerName" -Value $newComputerName -Force
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "Hostname" -Value $newComputerName -Force
 
-# Update OEM information
 $OEMPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation"
 if (-not (Test-Path $OEMPath)) {
     New-Item -Path $OEMPath -Force | Out-Null
 }
 
-Set-ItemProperty -Path $OEMPath -Name "Manufacturer" -Value "Github" -Force
 Set-ItemProperty -Path $OEMPath -Name "Model" -Value "Github runner" -Force
-Set-ItemProperty -Path $OEMPath -Name "SupportURL" -Value "https://github.com/djameledin/your-desktop/issues" -Force
 
 # 3) Apply Theme (Light/Dark) based on time
 function Apply-Theme {
@@ -89,7 +85,6 @@ public class Win32 {
 }
 "@
 
-    # Hide Windows Terminal
     $wt = Get-Process | Where-Object {
         $_.ProcessName -eq "WindowsTerminal" -and $_.MainWindowHandle -ne 0
     }
@@ -97,7 +92,6 @@ public class Win32 {
         [void][Win32]::ShowWindow($proc.MainWindowHandle, 0)
     }
 
-    # Close all File Explorer windows
     $shell = New-Object -ComObject Shell.Application
     $windows = $shell.Windows() | Where-Object { $_.Name -eq "File Explorer" }
     foreach ($window in $windows) {
@@ -105,25 +99,19 @@ public class Win32 {
     }
 }
 
-# ===== Main Execution =====
+# Main Execution
 $wallURL  = "https://microsoft.design/wp-content/uploads/2025/07/Brand-Flowers-Static-1.png"
 $wallPath = "C:\Users\Public\Pictures\wallpaper.png"
 
-# Apply Theme
 Apply-Theme
 
-# Clean Desktop
 Clean-Desktop
 
-# Download Wallpaper
 Download-Wallpaper -URL $wallURL -Path $wallPath
 
-# Restart Explorer to apply changes
 Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
 Start-Process explorer.exe
 
-# Set Wallpaper
 Set-Wallpaper -ImagePath $wallPath
 
-# Hide Windows Terminal and File Explorer
 Hide-Windows
