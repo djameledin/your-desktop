@@ -54,14 +54,6 @@ function Clean-Desktop {
 }
 
 # 5) Download and Set Wallpaper
-function Download-Wallpaper {
-    param([string]$URL, [string]$Path)
-
-    if (-not (Test-Path $Path)) {
-        try { Invoke-WebRequest -Uri $URL -OutFile $Path -ErrorAction Stop } catch {}
-    }
-}
-
 function Set-Wallpaper {
     param([string]$ImagePath)
     if (-not (Test-Path $ImagePath)) { return }
@@ -86,7 +78,7 @@ function Hide-Windows {
         [DllImport("user32.dll")]
         public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
     }
-    "@
+"@
 
     $wt = Get-Process | Where-Object {
         $_.ProcessName -eq "WindowsTerminal" -and $_.MainWindowHandle -ne 0
