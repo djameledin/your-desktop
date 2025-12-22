@@ -12,7 +12,7 @@ Create a new workflow in your GitHub repository (e.g., .github/workflows/windows
 
 Copy or install the workflow code into the workflow file.
 
-Add your Tailscale auth key as a repository secret named TAILSCALE_AUTHKEY from Settings > Secrets > New repository secret
+Add your Tailscale auth key and password as a repository secret named "TAILSCALE_AUTHKEY" "PASSWORD" from Settings > Secrets > New repository secret
 
 Trigger the workflow manually via the Actions tab.
 
