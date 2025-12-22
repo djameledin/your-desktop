@@ -1,8 +1,6 @@
 name: Windows environment
-
 on:
   workflow_dispatch:
-
 jobs:
   This-PC:
     runs-on: windows-latest
