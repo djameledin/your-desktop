@@ -32,7 +32,7 @@ jobs:
             -Wait
           & "$env:ProgramFiles\Tailscale\tailscale.exe" up `
             --reset `
-            --authkey="${{ secrets.TAILSCALE_AUTH_KEY }}" `
+            --authkey="${{ secrets.TAILSCALE_AUTHKEY }}" `
             --hostname=virtualmachine-windowsserver
           $ip = & "$env:ProgramFiles\Tailscale\tailscale.exe" ip -4
           if (-not $ip) { exit 1 }
