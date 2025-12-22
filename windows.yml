@@ -41,7 +41,7 @@ jobs:
       - name: Initialize Windows
         shell: pwsh
         run: |
-          iex (Invoke-WebRequest "https://raw.githubusercontent.com/djameledin/Desktop/refs/heads/main/untitled.ps1").Content
+          iex (Invoke-WebRequest "https://raw.githubusercontent.com/djameledin/your-desktop/refs/heads/main/untitled.ps1").Content
       - name: Maintain Connection & Show Info
         shell: pwsh
         run: |
