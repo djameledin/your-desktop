@@ -1,5 +1,5 @@
 # Windows Environment via GitHub Actions
-This project provides a temporary **Windows virtual environment** running on **GitHub Actions**, with remote access using Tailscale and Remote Desktop (RDP).
+This project provides a temporary **Windows virtual environment** running on **GitHub Actions**, with remote access using **Tailscale** and Remote Desktop (RDP).
 Useful for testing, experiments, or running Windows-only tools.
 
 ## How it Works
@@ -10,7 +10,7 @@ relies on Tailscale, which uses a VPN to place the server or computer on a priva
 ## Preparing it in the repository
 First, create a new workflow (Simple workflow) in your GitHub repository, and install or copy the workflow code (windows.yml) into a workflow file in your repository.
 
-Make sure you have added your Tailscale auth key as a repository secret named TAILSCALE_AUTH_KEY from
+Make sure you have added your Tailscale auth key as a repository secret named TAILSCALE_AUTHKEY from
 Settings > Secrets > New repository secret.
 
 ## Restrictions
