@@ -7,13 +7,17 @@ This environment is based on the latest Windows Server image officially provided
 
 relies on Tailscale, which uses a VPN to place the server or computer on a private network that behaves like a local network for secure communication, In our setup, we connect to the virtual machine through this network to access and control the system remotely.
 
-## Preparing it in the repository
-First, create a new workflow (Simple workflow) in your GitHub repository, and install or copy the workflow code (windows.yml) into a workflow file in your repository.
+## Setup Instructions
+Create a new workflow in your GitHub repository (e.g., .github/workflows/windows.yml).
 
-Make sure you have added your Tailscale auth key as a repository secret named TAILSCALE_AUTHKEY from
-Settings > Secrets > New repository secret.
+Copy or install the workflow code into the workflow file.
+
+Add your Tailscale auth key as a repository secret named TAILSCALE_AUTHKEY from Settings > Secrets > New repository secret
+
+Trigger the workflow manually via the Actions tab.
 
 ## Restrictions
 Although this may be considered a free virtual environment, the session is limited to a maximum of **6 hours.**
 
 Additionally, this usage may violate GitHub’s Terms of Service. If such activity is detected, your account may be restricted or suspended.
+
