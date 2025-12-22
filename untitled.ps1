@@ -53,33 +53,43 @@ function Clean-Desktop {
     }
 }
 
-# 5) Download and Set Wallpaper
+# 5) Download Wallpaper
+function Download-Wallpaper {
+    param([string]$URL, [string]$Path)
+
+    if (-not (Test-Path $Path)) {
+        try { Invoke-WebRequest -Uri $URL -OutFile $Path -ErrorAction Stop } catch {}
+    }
+}
+
+# 6) Set Wallpaper
 function Set-Wallpaper {
     param([string]$ImagePath)
     if (-not (Test-Path $ImagePath)) { return }
 
     Add-Type @"
-    using System.Runtime.InteropServices;
-    public class WP {
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern bool SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
-    }
+using System.Runtime.InteropServices;
+public class WP {
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
+}
 "@
 
     [WP]::SystemParametersInfo(20, 0, $ImagePath, 3) | Out-Null
 }
 
-# 6) Hide Windows Terminal and Explorer Windows
+# 7) Hide Windows Terminal and File Explorer
 function Hide-Windows {
     Add-Type @"
-    using System;
-    using System.Runtime.InteropServices;
-    public class Win32 {
-        [DllImport("user32.dll")]
-        public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-    }
+using System;
+using System.Runtime.InteropServices;
+public class Win32 {
+    [DllImport("user32.dll")]
+    public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+}
 "@
 
+    # Hide Windows Terminal
     $wt = Get-Process | Where-Object {
         $_.ProcessName -eq "WindowsTerminal" -and $_.MainWindowHandle -ne 0
     }
@@ -87,6 +97,7 @@ function Hide-Windows {
         [void][Win32]::ShowWindow($proc.MainWindowHandle, 0)
     }
 
+    # Close all File Explorer windows
     $shell = New-Object -ComObject Shell.Application
     $windows = $shell.Windows() | Where-Object { $_.Name -eq "File Explorer" }
     foreach ($window in $windows) {
@@ -94,16 +105,25 @@ function Hide-Windows {
     }
 }
 
-# Main Execution
+# ===== Main Execution =====
 $wallURL  = "https://microsoft.design/wp-content/uploads/2025/07/Brand-Flowers-Static-1.png"
 $wallPath = "C:\Users\Public\Pictures\wallpaper.png"
 
+# Apply Theme
 Apply-Theme
+
+# Clean Desktop
 Clean-Desktop
+
+# Download Wallpaper
 Download-Wallpaper -URL $wallURL -Path $wallPath
 
+# Restart Explorer to apply changes
 Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
 Start-Process explorer.exe
 
+# Set Wallpaper
 Set-Wallpaper -ImagePath $wallPath
+
+# Hide Windows Terminal and File Explorer
 Hide-Windows
