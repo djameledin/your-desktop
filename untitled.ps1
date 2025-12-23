@@ -117,7 +117,7 @@ function Main {
     Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
     Start-Process explorer.exe
     
-    Start-Sleep -Seconds 2
+    Start-Sleep -Seconds 3
 
     Hide-WindowsTerminal
     Close-FileExplorer
