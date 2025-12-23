@@ -84,10 +84,9 @@ function Hide-WindowsTerminal {
 function Close-FileExplorer {
     try {
         $shell = New-Object -ComObject Shell.Application
-        foreach ($window in $shell.Windows()) {
-            if ($window.Name -eq "File Explorer") {
-                $window.Quit()
-            }
+        $windows = $shell.Windows() | Where-Object { $_.Name -eq "File Explorer" }
+        if ($windows) {
+            foreach ($window in $windows) { $window.Quit() }
         }
     } catch { Write-Host "Failed to close File Explorer windows." -ForegroundColor Yellow }
 }
@@ -117,6 +116,8 @@ function Main {
 
     Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
     Start-Process explorer.exe
+    
+    Start-Sleep -Seconds 2
 
     Hide-WindowsTerminal
     Close-FileExplorer
