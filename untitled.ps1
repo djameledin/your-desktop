@@ -1,5 +1,3 @@
-
-
 # 1) Ensure script is running as Administrator
 $admin = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 if (-not $admin.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
