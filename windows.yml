@@ -19,6 +19,7 @@ jobs:
           Add-LocalGroupMember -Group "Remote Desktop Users" -Member $username -ErrorAction SilentlyContinue
           echo "USERNAME=$username" >> $env:GITHUB_ENV
           echo "PASSWORD=$password" >> $env:GITHUB_ENV
+          Write-Host "User account provisioning completed successfully."
       - name: Install & Connect Tailscale
         shell: pwsh
         run: |
