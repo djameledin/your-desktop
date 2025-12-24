@@ -121,6 +121,9 @@ function Main {
 
     Hide-WindowsTerminal
     Close-FileExplorer
+
+    Write-Host "Script finished successfully." -ForegroundColor Green
+
 }
 
 Main
