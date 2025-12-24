@@ -41,7 +41,7 @@ jobs:
       - name: Initialize Windows (optional)
         shell: pwsh
         run: |
-          #run an external PowerShell script
+          # Run an external PowerShell script
           Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy Bypass
           iex (Invoke-WebRequest "https://raw.githubusercontent.com/djameledin/your-desktop/refs/heads/main/untitled.ps1").Content
       - name: Maintain Connection & Show Info
