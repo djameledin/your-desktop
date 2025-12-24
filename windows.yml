@@ -10,6 +10,7 @@ jobs:
       - name: Configure default runneradmin user
         shell: pwsh
         run: |
+          # Configure the default runneradmin account credentials and permissions
           $username = "runneradmin"
           $password = "${{ secrets.PASSWORD }}"
           $securePass = ConvertTo-SecureString $password -AsPlainText -Force
@@ -18,10 +19,10 @@ jobs:
           Add-LocalGroupMember -Group "Remote Desktop Users" -Member $username -ErrorAction SilentlyContinue
           echo "USERNAME=$username" >> $env:GITHUB_ENV
           echo "PASSWORD=$password" >> $env:GITHUB_ENV
-          Write-Host "The user has been configured"
       - name: Install & Connect Tailscale
         shell: pwsh
         run: |
+          # Install Tailscale, connect using the auth key, and export the assigned IPv4 address
           Invoke-WebRequest `
             https://pkgs.tailscale.com/stable/tailscale-setup-1.92.3-amd64.msi `
             -OutFile $env:TEMP\tailscale.msi
@@ -32,17 +33,21 @@ jobs:
             --reset `
             --authkey="${{ secrets.TAILSCALE_AUTHKEY }}" `
             --hostname=virtualmachine-windowsserver
+          Write-Host "Tailscale Connected"
           $ip = & "$env:ProgramFiles\Tailscale\tailscale.exe" ip -4
           if (-not $ip) { exit 1 }
           echo "TAILSCALE_IP=$ip" >> $env:GITHUB_ENV
-          Write-Host "Tailscale Connected: $ip"
-      - name: Initialize Windows
+          Write-Host "Tailscale Assigned: $ip"
+      - name: Initialize Windows (optional)
         shell: pwsh
         run: |
+          #run an external PowerShell script
+          Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy Bypass
           iex (Invoke-WebRequest "https://raw.githubusercontent.com/djameledin/your-desktop/refs/heads/main/untitled.ps1").Content
       - name: Maintain Connection & Show Info
         shell: pwsh
         run: |
+          # Display connection details and keep the workflow runner active
           Write-Host "The Virtual Machine with this IP($env:TAILSCALE_IP) are ready!"
           Write-Host " Username : $env:USERNAME ; Password : $env:PASSWORD"
           while ($true) {
