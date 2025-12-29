@@ -5,7 +5,6 @@ jobs:
   This-PC:
     runs-on: windows-latest
     timeout-minutes: 3600
-
     steps:
       - name: Configure default runneradmin user
         shell: pwsh
