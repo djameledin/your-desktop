@@ -17,7 +17,6 @@ jobs:
           Add-LocalGroupMember -Group "Administrators" -Member $username -ErrorAction SilentlyContinue
           Add-LocalGroupMember -Group "Remote Desktop Users" -Member $username -ErrorAction SilentlyContinue
           echo "USERNAME=$username" >> $env:GITHUB_ENV
-          echo "PASSWORD=$password" >> $env:GITHUB_ENV
           Write-Host "User account provisioning completed successfully."
       - name: Install & Connect Tailscale
         shell: pwsh
@@ -48,8 +47,9 @@ jobs:
         shell: pwsh
         run: |
           # Display connection details and keep the workflow runner active
-          Write-Host "The Virtual Machine with this IP($env:TAILSCALE_IP) are ready!"
-          Write-Host " Username : $env:USERNAME ; Password : $env:PASSWORD"
+          $plainPassword = "${{ secrets.PASSWORD }}"
+          Write-Host "The Virtual Machine with this IP($env:TAILSCALE_IP) is ready!"
+          Write-Host " Username : $env:USERNAME ; Password : $plainPassword"
           while ($true) {
               Write-Host " "
               Write-Host "[$(Get-Date)] Keep it Active..."
