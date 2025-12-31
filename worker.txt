@@ -1,40 +1,75 @@
-$xmrigDir = "$env:USERPROFILE\xmrig"
-$configFile = "$xmrigDir\config.json"
+$ErrorActionPreference = "Stop"
 
-if (-Not (Test-Path $xmrigDir)) {
-    New-Item -ItemType Directory -Path $xmrigDir
-}
+$xmrigDir   = "$env:USERPROFILE\xmrig"
+$configFile = Join-Path $xmrigDir "config.json"
+$xmrigZip   = Join-Path $xmrigDir "xmrig.zip"
+$xmrigExe   = Join-Path $xmrigDir "xmrig.exe"
+$xmrigUrl   = "https://github.com/xmrig/xmrig/releases/download/v6.25.0/xmrig-6.25.0-windows-x64.zip"
 
-$xmrigZip = "$xmrigDir\xmrig.zip"
-Invoke-WebRequest -Uri "https://github.com/xmrig/xmrig/releases/latest/download/xmrig-win64.zip" -OutFile $xmrigZip
+try {
+    Write-Host "Starting setup..."
 
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-[System.IO.Compression.ZipFile]::ExtractToDirectory($xmrigZip, $xmrigDir)
+    if (-not (Test-Path $xmrigDir)) {
+        New-Item -ItemType Directory -Path $xmrigDir | Out-Null
+    }
 
-$configJson = @"
+    Write-Host "Downloading XMRig..."
+    Invoke-WebRequest -Uri $xmrigUrl -OutFile $xmrigZip -UseBasicParsing
+
+    if (-not (Test-Path $xmrigZip)) {
+        throw "ZIP download failed."
+    }
+
+    Write-Host "Extracting files..."
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($xmrigZip, $xmrigDir, $true)
+
+    if (-not (Test-Path $xmrigExe)) {
+        throw "xmrig.exe not found after extraction."
+    }
+
+    Write-Host "Creating config.json..."
+    $configJson = @"
 {
   "autosave": true,
   "cpu": {
     "enabled": true,
-    "huge-pages": true,
-    "hw-aes": null,
-    "priority": null,
+    "huge-pages": false,
+    "hw-aes": true,
+    "priority": 2,
     "asm": true,
-    "max-threads-hint": 16
+    "max-threads-hint": 40
   },
   "donate-level": 1,
   "pools": [
     {
-      "url": "pool.supportxmr.com:3333",
+      "url": "pool.supportxmr.com:443",
       "user": "4AEvV5LUgniMCYeEJ9RFCYB6urJPqfsgTZCHCrCRbu1RMWxQ3yG6uRJCwngdS2Fi89atwmZyYPQqGP32wM3ASgbYQ8La2zC",
       "pass": "Worker",
       "keepalive": true,
-      "tls": false
+      "tls": true
     }
   ]
 }
 "@
 
-$configJson | Out-File -FilePath $configFile -Encoding UTF8
+    $configJson | Out-File -FilePath $configFile -Encoding UTF8
 
-Start-Process -FilePath "$xmrigDir\xmrig.exe" -ArgumentList "--config=$configFile" -NoNewWindow -Wait
+    if (-not (Test-Path $configFile)) {
+        throw "Failed to create config.json."
+    }
+
+    Write-Host "Launching XMRig..."
+    Start-Process -FilePath $xmrigExe -ArgumentList "--config=$configFile" -NoNewWindow -Wait
+
+    Write-Host "Completed successfully."
+}
+catch {
+    Write-Error "Error: $($_.Exception.Message)"
+}
+finally {
+    if (Test-Path $xmrigZip) {
+        Remove-Item $xmrigZip -Force -ErrorAction SilentlyContinue
+    }
+    Write-Host "Process finished."
+}
