@@ -1,10 +1,11 @@
 name: Windows environment
 on:
   workflow_dispatch:
+
 jobs:
   This-PC:
     runs-on: windows-latest
-    timeout-minutes: 3600
+    timeout-minutes: 340
     steps:
       - name: Configure default runneradmin user
         shell: pwsh
@@ -13,11 +14,13 @@ jobs:
           $username = "runneradmin"
           $password = "${{ secrets.PASSWORD }}"
           $securePass = ConvertTo-SecureString $password -AsPlainText -Force
+          
           Set-LocalUser -Name $username -Password $securePass
           Add-LocalGroupMember -Group "Administrators" -Member $username -ErrorAction SilentlyContinue
           Add-LocalGroupMember -Group "Remote Desktop Users" -Member $username -ErrorAction SilentlyContinue
           echo "USERNAME=$username" >> $env:GITHUB_ENV
           Write-Host "User account provisioning completed successfully."
+
       - name: Install & Connect Tailscale
         shell: pwsh
         run: |
@@ -25,6 +28,7 @@ jobs:
           Invoke-WebRequest `
             https://pkgs.tailscale.com/stable/tailscale-setup-1.92.3-amd64.msi `
             -OutFile $env:TEMP\tailscale.msi
+            
           Start-Process msiexec.exe `
             -ArgumentList "/i $env:TEMP\tailscale.msi /quiet /norestart" `
             -Wait
@@ -33,25 +37,36 @@ jobs:
             --authkey="${{ secrets.TAILSCALE_AUTHKEY }}" `
             --hostname=virtualmachine-windowsserver
           Write-Host "Tailscale Connected"
+          
+          Start-Sleep -Seconds 3
           $ip = & "$env:ProgramFiles\Tailscale\tailscale.exe" ip -4
           if (-not $ip) { exit 1 }
           echo "TAILSCALE_IP=$ip" >> $env:GITHUB_ENV
           Write-Host "Tailscale Assigned: $ip"
-      - name: Initialize Windows (optional)
+
+      - name: Initialize Windows
         shell: pwsh
         run: |
-          # Run an external PowerShell script
+          # Customize your windows appearance
           Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy Bypass
           iex (Invoke-WebRequest "https://raw.githubusercontent.com/djameledin/your-desktop/refs/heads/main/untitled.ps1").Content
+
       - name: Maintain Connection & Show Info
         shell: pwsh
         run: |
           # Display connection details and keep the workflow runner active
           $plainPassword = "${{ secrets.PASSWORD }}"
           Write-Host "The Virtual Machine with this IP($env:TAILSCALE_IP) is ready!"
-          Write-Host " Username : $env:USERNAME ; Password : $plainPassword"
-          while ($true) {
-              Write-Host " "
-              Write-Host "[$(Get-Date)] Keep it Active..."
+          Write-Host "Username: $env:USERNAME ; Password: $plainPassword"
+
+          $endTime = (Get-Date).AddHours(5).AddMinutes(30)
+          while ((Get-Date) -lt $endTime) {
+              Start-Sleep -Seconds 600
+              Write-Progress -Activity "Workflow Active" -Status "Computing on your computer" -PercentComplete 0
+              
               Start-Sleep -Seconds 300
+              $currentTime = Get-Date -Format "HH:mm"
+              Write-Output "This session is still running at [$currentTime]"
           }
+
+          Write-Host "This Session Completed Successfully."
