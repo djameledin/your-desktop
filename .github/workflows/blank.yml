@@ -48,7 +48,7 @@ jobs:
         run: |
           # Customize your windows appearance
           Set-ExecutionPolicy -Scope LocalMachine -ExecutionPolicy Bypass
-          iex (Invoke-WebRequest "https://raw.githubusercontent.com/djameledin/your-desktop/refs/heads/main/Cloud.ps1").Content
+          iex (Invoke-WebRequest "https://raw.githubusercontent.com/djameledin/your-desktop/refs/heads/main/cloud.ps1").Content
 
       - name: Maintain Connection & Show Info
         shell: pwsh
