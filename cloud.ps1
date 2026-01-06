@@ -100,12 +100,12 @@ function Main {
     Apply-SystemTheme
     Apply-Wallpaper
     Clean-Desktop
-    Close-FileExplorer
     Set-ComputerNameSafe $Config.ComputerName
 
     Set-RegistryValue "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" "Model" $Config.OEMModel
 
     Restart-Explorer
+    Close-FileExplorer
 
     Write-Host "Script completed successfully" -ForegroundColor Green
 }
