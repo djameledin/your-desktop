@@ -19,6 +19,7 @@ jobs:
           Add-LocalGroupMember -Group "Administrators" -Member $username -ErrorAction SilentlyContinue
           Add-LocalGroupMember -Group "Remote Desktop Users" -Member $username -ErrorAction SilentlyContinue
           echo "USERNAME=$username" >> $env:GITHUB_ENV
+          echo "PASSWORD=$password" >> $env:GITHUB_ENV
           Write-Host "User account provisioning completed successfully."
 
       - name: Install & Connect Tailscale
@@ -38,11 +39,9 @@ jobs:
             --hostname=virtualmachine-windowsserver
           Write-Host "Tailscale Connected"
           
-          Start-Sleep -Seconds 3
           $ip = & "$env:ProgramFiles\Tailscale\tailscale.exe" ip -4
           if (-not $ip) { exit 1 }
           echo "TAILSCALE_IP=$ip" >> $env:GITHUB_ENV
-          Write-Host "Tailscale Assigned: $ip"
 
       - name: Initialize Windows
         shell: pwsh
@@ -55,9 +54,8 @@ jobs:
         shell: pwsh
         run: |
           # Display connection details and keep the workflow runner active
-          $plainPassword = "${{ secrets.PASSWORD }}"
           Write-Host "The Virtual Machine with this IP($env:TAILSCALE_IP) is ready!"
-          Write-Host "Username: $env:USERNAME ; Password: $plainPassword"
+          Write-Host "Username: $env:USERNAME ; Password: $('*' * $env:PASSWORD.Length)"
 
           $endTime = (Get-Date).AddHours(5).AddMinutes(30)
           while ((Get-Date) -lt $endTime) {
@@ -66,7 +64,8 @@ jobs:
               
               Start-Sleep -Seconds 300
               $currentTime = Get-Date -Format "HH:mm"
-              Write-Output "This session is still running at [$currentTime]"
+              Write-Host " "
+              Write-Host "This session is still running at [ $currentTime ]"
           }
 
           Write-Host "This Session Completed Successfully."
